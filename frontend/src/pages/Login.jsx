@@ -204,7 +204,7 @@ const Login = () => {
                 <div className="input-wrapper">
                   <input 
                     className="custom-input" 
-                    placeholder="2024-0001"
+                    placeholder="20-1001-123"
                     required 
                     value={form.studentId}
                     onChange={e => setForm({...form, studentId: e.target.value})}
@@ -221,7 +221,7 @@ const Login = () => {
               <input 
                 type="email" 
                 className="custom-input" 
-                placeholder={role === 'STUDENT' ? "student@citu.edu.ph" : "admin@cit.edu"}
+                placeholder={role === 'STUDENT' ? "student@citu.edu" : "admin@cit.edu"}
                 required
                 value={form.email}
                 onChange={e => setForm({...form, email: e.target.value})}
