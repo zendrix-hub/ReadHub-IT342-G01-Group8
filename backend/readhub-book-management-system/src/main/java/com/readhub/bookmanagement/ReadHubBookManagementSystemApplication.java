@@ -2,10 +2,12 @@ package com.readhub.bookmanagement;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.scheduling.annotation.EnableScheduling; // Import this
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
-@EnableScheduling // Add this annotation
+@EnableScheduling
+@EnableAsync
 public class ReadHubBookManagementSystemApplication {
 
 	public static void main(String[] args) {

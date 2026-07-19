@@ -17,7 +17,7 @@ public class EmailService {
     private String fromEmail;
 
     // Run in background so the user doesn't wait for the email to send
-    @Async 
+    @Async
     public void sendEmail(String to, String subject, String body) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
@@ -25,11 +25,17 @@ public class EmailService {
             message.setTo(to);
             message.setSubject(subject);
             message.setText(body);
-            
+
             mailSender.send(message);
             System.out.println("📧 [EmailService] Sent to " + to);
         } catch (Exception e) {
             System.err.println("❌ [EmailService] Failed to send email: " + e.getMessage());
         }
+    }
+
+    @Async
+    public void sendOverdueNotificationAsync(String email, String title) {
+        sendEmail(email, "URGENT: ReadHub Overdue Alert",
+                "The book '" + title + "' is overdue. Please return it as soon as possible.");
     }
 }

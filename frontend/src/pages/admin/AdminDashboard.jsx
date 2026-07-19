@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { LayoutDashboard, Library, Clock, Plus, Search, Trash2, Edit2, Users, AlertTriangle } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import StatusBadge from '../../components/status/StatusBadge';
@@ -6,12 +6,14 @@ import AddBookModal from '../../components/modals/AddBookModal';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useConfirm } from '../../context/ConfirmationContext';
+import { BorrowingActivityChart, CategoryDistributionChart } from '../../components/AnalyticsCharts';
 import '../../styles/dashboard.scss';
 
 const AdminDashboard = () => {
   // --- STATE ---
   const [activeTab, setActiveTab] = useState('overview');
   const [stats, setStats] = useState({ users: 0, books: 0, overdue: 0, pending: 0 });
+  const [dashboardStats, setDashboardStats] = useState(null);
   const [transactions, setTransactions] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [users, setUsers] = useState([]);
@@ -64,6 +66,12 @@ const AdminDashboard = () => {
         return false;
       }).length;
 
+      const statsRes = await fetch('http://localhost:8080/api/dashboard/admin', { headers });
+      if (statsRes.ok) {
+        const statsData = await statsRes.json();
+        setDashboardStats(statsData);
+      }
+
       setStats({
         users: safeUsers.length,
         books: safeBooks.reduce((acc, b) => acc + b.totalCopies, 0),
@@ -79,6 +87,14 @@ const AdminDashboard = () => {
       setUsers([]);
     }
   }, [token, showToast]);
+
+  const activeLoanUserIds = useMemo(() => {
+    return new Set(
+      transactions
+        .filter(t => t.user?.userId && (t.status === 'BORROWED' || t.status === 'OVERDUE'))
+        .map(t => t.user.userId)
+    );
+  }, [transactions]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
@@ -167,11 +183,50 @@ useEffect(() => {
   // --- RENDER FUNCTIONS ---
 
   const renderOverview = () => (
-    <div className="stats-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
-      <div className="stat-card"><span className="stat-label">Pending</span><span className="stat-value pending">{stats.pending}</span></div>
-      <div className="stat-card" style={{ borderTop: '4px solid #DC2626' }}><span className="stat-label">Overdue</span><span className="stat-value" style={{ color: '#DC2626' }}>{stats.overdue}</span></div>
-      <div className="stat-card"><span className="stat-label">Inventory</span><span className="stat-value total">{stats.books}</span></div>
-      <div className="stat-card"><span className="stat-label">Students</span><span className="stat-value" style={{ color: '#4B5563' }}>{stats.users}</span></div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', animation: 'fadeIn 0.4s ease-out' }}>
+      {/* 4 Glass Stats Cards */}
+      <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+        <div className="stat-card glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <span className="stat-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+            <Clock size={16} color="var(--color-maroon)" /> Pending Approvals
+          </span>
+          <span className="stat-value pending" style={{ fontSize: '32px', fontWeight: '800', color: 'var(--color-maroon)' }}>{dashboardStats?.pendingApprovals ?? stats.pending}</span>
+        </div>
+        <div className="stat-card glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '4px solid var(--color-danger)' }}>
+          <span className="stat-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+            <AlertTriangle size={16} color="var(--color-danger)" /> Overdue Books
+          </span>
+          <span className="stat-value" style={{ fontSize: '32px', fontWeight: '800', color: 'var(--color-danger)' }}>{stats.overdue}</span>
+        </div>
+        <div className="stat-card glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <span className="stat-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+            <Library size={16} color="var(--color-gold)" /> Total Inventory
+          </span>
+          <span className="stat-value total" style={{ fontSize: '32px', fontWeight: '800', color: 'var(--color-gold)' }}>{dashboardStats?.totalBooks ?? stats.books}</span>
+        </div>
+        <div className="stat-card glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <span className="stat-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+            <Users size={16} color="var(--text-primary)" /> Students Count
+          </span>
+          <span className="stat-value" style={{ fontSize: '32px', fontWeight: '800', color: 'var(--text-primary)' }}>{dashboardStats?.totalStudents ?? stats.users}</span>
+        </div>
+      </div>
+
+      {/* Interactive Charts Panel */}
+      <div className="charts-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))', gap: '30px', marginTop: '10px' }}>
+        <div className="chart-card glass-panel">
+          <h3 className="chart-title" style={{ fontSize: '15px', fontWeight: '700', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--color-border)', paddingBottom: '12px' }}>
+            <LayoutDashboard size={16} color="var(--color-maroon)" /> Monthly Borrowing Activity
+          </h3>
+          <BorrowingActivityChart data={dashboardStats?.borrowingTrends} />
+        </div>
+        <div className="chart-card glass-panel">
+          <h3 className="chart-title" style={{ fontSize: '15px', fontWeight: '700', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--color-border)', paddingBottom: '12px' }}>
+            <Library size={16} color="var(--color-gold)" /> Book Category Distribution
+          </h3>
+          <CategoryDistributionChart data={dashboardStats?.categoryDistribution} />
+        </div>
+      </div>
     </div>
   );
 
@@ -255,60 +310,58 @@ useEffect(() => {
               placeholder="Search students by name or email..." 
               value={userSearch}
               onChange={(e) => setUserSearch(e.target.value)}
+              style={{ background: 'var(--white)', border: '1px solid var(--border-light)', color: 'var(--text-main)' }}
             />
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', padding: '0 16px', background: 'white', border: '1px solid var(--border-light)', borderRadius: '8px', fontWeight: '600', color: 'var(--text-sub)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', padding: '0 16px', background: 'var(--white)', border: '1px solid var(--border-light)', borderRadius: '8px', fontWeight: '600', color: 'var(--text-sub)' }}>
             {filteredUsers.length} Students
           </div>
         </div>
 
         <div className="table-wrapper">
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
+            <thead style={{ background: 'var(--bg-page)', borderBottom: '1px solid var(--border-light)' }}>
               <tr>
-                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Student Identity</th>
-                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Activity Status</th>
-                <th style={{ padding: '16px 24px', textAlign: 'right', fontSize: '12px', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Management</th>
+                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', color: 'var(--text-sub)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Student Identity</th>
+                <th style={{ padding: '16px 24px', textAlign: 'left', fontSize: '12px', color: 'var(--text-sub)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Activity Status</th>
+                <th style={{ padding: '16px 24px', textAlign: 'right', fontSize: '12px', color: 'var(--text-sub)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Management</th>
               </tr>
             </thead>
             <tbody>
               {filteredUsers.map(u => (
-                <tr key={u.userId} style={{ borderBottom: '1px solid #F3F4F6' }}>
+                <tr key={u.userId} style={{ borderBottom: '1px solid var(--border-light)' }}>
                   <td style={{ padding: '16px 24px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                       <div style={{ 
                         width: '48px', height: '48px', borderRadius: '50%', 
-                        background: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center', 
-                        fontWeight: '700', color: '#821124', fontSize: '18px',
+                        background: 'var(--beige-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', 
+                        fontWeight: '700', color: 'var(--maroon)', fontSize: '18px',
                         backgroundImage: u.avatarUrl ? `url(${u.avatarUrl})` : 'none', 
                         backgroundSize: 'cover', 
-                        boxShadow: '0 0 0 2px white, 0 0 0 4px #F3F4F6'
+                        boxShadow: '0 0 0 2px var(--white), 0 0 0 4px var(--border-light)'
                       }}>
                         {!u.avatarUrl && u.firstName.charAt(0)}
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                        <span style={{ fontWeight: '600', color: '#111827', fontSize: '15px' }}>{u.firstName} {u.lastName}</span>
-                        <span style={{ fontSize: '13px', color: '#6B7280' }}>{u.email}</span>
+                        <span style={{ fontWeight: '600', color: 'var(--text-main)', fontSize: '15px' }}>{u.firstName} {u.lastName}</span>
+                        <span style={{ fontSize: '13px', color: 'var(--text-sub)' }}>{u.email}</span>
                       </div>
                     </div>
                   </td>
                   <td style={{ padding: '16px 24px' }}>
-                    {(() => {
-                        const hasActiveLoan = transactions.some(t => t.user?.userId === u.userId && (t.status === 'BORROWED' || t.status === 'OVERDUE'));
-                        return hasActiveLoan ? (
-                            <span className="badge" style={{ background: '#ECFDF5', color: '#059669', border: '1px solid #A7F3D0', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.05em' }}>HAS ACTIVE LOAN</span>
-                        ) : (
-                            <span className="badge" style={{ background: '#F3F4F6', color: '#6B7280', border: '1px solid #E5E7EB', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.05em' }}>NO ACTIVITY</span>
-                        );
-                    })()}
+                    {activeLoanUserIds.has(u.userId) ? (
+                        <span className="badge" style={{ background: 'rgba(16, 185, 129, 0.15)', color: '#10B981', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.05em' }}>HAS ACTIVE LOAN</span>
+                    ) : (
+                        <span className="badge" style={{ background: 'var(--bg-page)', color: 'var(--text-sub)', border: '1px solid var(--border-light)', padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.05em' }}>NO ACTIVITY</span>
+                    )}
                   </td>
                   <td style={{ padding: '16px 24px', textAlign: 'right' }}>
-                    <button onClick={() => handleDeleteUser(u.userId)} title="Delete User" className="btn-view-details" style={{ padding: '10px', color: '#DC2626', background: 'white', border: '1px solid #E5E7EB', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} onMouseEnter={(e) => { e.currentTarget.style.background = '#FEF2F2'; e.currentTarget.style.borderColor = '#FECACA'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'white'; e.currentTarget.style.borderColor = '#E5E7EB'; }}><Trash2 size={18} /></button>
+                    <button onClick={() => handleDeleteUser(u.userId)} title="Delete User" className="btn-view-details" style={{ padding: '10px', color: 'var(--danger)', background: 'var(--white)', border: '1px solid var(--border-light)', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }} onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--danger-bg)'; e.currentTarget.style.borderColor = 'var(--danger)'; }} onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--white)'; e.currentTarget.style.borderColor = 'var(--border-light)'; }}><Trash2 size={18} /></button>
                   </td>
                 </tr>
               ))}
               {filteredUsers.length === 0 && (
-                <tr><td colSpan="3" style={{ padding: '60px 0', textAlign: 'center' }}><div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', opacity: 0.6 }}><Users size={48} color="#9CA3AF" strokeWidth={1} /><span style={{ color: '#6B7280', fontSize: '14px' }}>{userSearch ? `No students found matching "${userSearch}"` : "No registered students yet."}</span></div></td></tr>
+                <tr><td colSpan="3" style={{ padding: '60px 0', textAlign: 'center' }}><div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', opacity: 0.6 }}><Users size={48} color="var(--text-sub)" strokeWidth={1} /><span style={{ color: 'var(--text-sub)', fontSize: '14px' }}>{userSearch ? `No students found matching "${userSearch}"` : "No registered students yet."}</span></div></td></tr>
               )}
             </tbody>
           </table>

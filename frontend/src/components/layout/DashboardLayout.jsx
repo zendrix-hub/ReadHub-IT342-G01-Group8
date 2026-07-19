@@ -242,13 +242,13 @@ const DashboardLayout = ({ children }) => {
 
       {/* --- LOGOUT CONFIRMATION MODAL --- */}
       {showLogoutConfirm && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <h2>Confirm Logout</h2>
-            <p>Are you sure you want to log out?</p>
-            <div className="modal-actions">
-              <button className="btn-confirm" onClick={confirmLogout}>Yes, Logout</button>
-              <button className="btn-cancel" onClick={cancelLogout}>Cancel</button>
+        <div className="confirmation-overlay">
+          <div className="confirmation-box">
+            <h2 className="confirm-title">Confirm Logout</h2>
+            <p className="confirm-message">Are you sure you want to log out?</p>
+            <div className="confirm-actions">
+              <button className="btn-yes-conf" onClick={confirmLogout}>Yes, Logout</button>
+              <button className="btn-cancel-conf" onClick={cancelLogout}>Cancel</button>
             </div>
           </div>
         </div>

@@ -37,6 +37,7 @@ body[data-theme='dark'] {
   --radius: 12px;
   min-height: 100vh;
   background-color: var(--bg-warm);
+  background-image: var(--bg-page-radial);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -45,6 +46,71 @@ body[data-theme='dark'] {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   transition: background-color 0.3s ease;
   position: relative;
+  overflow: hidden;
+}
+
+/* Glassmorphism Background Blobs */
+.bg-blobs {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.12;
+  animation: float 20s infinite alternate ease-in-out;
+}
+
+.blob-1 {
+  width: 320px;
+  height: 320px;
+  background: var(--color-maroon);
+  top: 10%;
+  left: 5%;
+  animation-duration: 22s;
+}
+
+.blob-2 {
+  width: 380px;
+  height: 380px;
+  background: var(--color-gold);
+  bottom: 8%;
+  right: 8%;
+  animation-delay: -4s;
+  animation-duration: 28s;
+}
+
+.blob-3 {
+  width: 280px;
+  height: 280px;
+  background: #10B981;
+  top: 55%;
+  left: 45%;
+  animation-delay: -8s;
+  animation-duration: 18s;
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.15);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
 }
 
 /* --- TOAST NOTIFICATION --- */
@@ -128,6 +194,8 @@ body[data-theme='dark'] {
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  z-index: 2;
 }
 
 .logo-circle {
@@ -172,6 +240,8 @@ body[data-theme='dark'] {
   width: 100%;
   max-width: 320px;
   transition: background-color 0.3s ease;
+  position: relative;
+  z-index: 2;
 }
 
 .role-btn {
@@ -195,13 +265,30 @@ body[data-theme='dark'] {
 
 /* --- MAIN CARD --- */
 .login-card {
-  background: var(--white);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   padding: 40px;
   border-radius: 24px;
-  box-shadow: var(--card-shadow);
-  transition: background-color 0.3s ease;
+  box-shadow: var(--glass-shadow);
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  position: relative;
+  z-index: 2;
+  animation: cardFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .card-header {
@@ -273,18 +360,20 @@ body[data-theme='dark'] {
 .custom-input {
   width: 100%;
   background: var(--input-bg);
-  border: none;
+  border: 1.5px solid transparent;
   padding: 14px 16px;
   padding-right: 40px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 14px;
   color: var(--text-dark);
   outline: none;
-  transition: box-shadow 0.2s, background-color 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
-
+ 
 .custom-input:focus {
-  box-shadow: 0 0 0 2px rgba(130, 17, 36, 0.3);
+  border-color: var(--color-maroon);
+  box-shadow: 0 0 0 4px var(--color-maroon-glow);
+  background: var(--white);
 }
 
 .input-icon {

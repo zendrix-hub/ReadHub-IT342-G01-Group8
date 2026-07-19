@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react'; // Import useCallback
-import { LayoutGrid, History } from 'lucide-react';
+import { LayoutGrid, History, Clock, Library, LayoutDashboard } from 'lucide-react';
 import DashboardLayout from '../../components/layout/DashboardLayout';
 import BrowseView from './BrowseView';
 import ActivityView from './ActivityView';
 import UrgentActionModal from '../../components/modals/UrgentActionModal'; // Import Modal
 import { useAuth } from '../../context/AuthContext'; // Import Auth
+import { BorrowingActivityChart } from '../../components/AnalyticsCharts';
 import '../../styles/dashboard.scss';
 
 const StudentDashboard = () => {
-  const [activeTab, setActiveTab] = useState('browse');
+  const [activeTab, setActiveTab] = useState('overview');
+  const [studentStats, setStudentStats] = useState(null);
   
   // --- ADVISORY LOGIC ---
   const [showAdvisory, setShowAdvisory] = useState(false);
@@ -39,6 +41,14 @@ const StudentDashboard = () => {
         const days = getDaysRemaining(t.dueDate);
         return days >= 0 && days <= 2; // Due within 2 days
       });
+ 
+      const statsRes = await fetch('http://localhost:8080/api/dashboard/student', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (statsRes.ok) {
+        const statsData = await statsRes.json();
+        setStudentStats(statsData);
+      }
 
       if (overdue.length > 0 || dueSoon.length > 0) {
         setOverdueItems(overdue);
@@ -62,11 +72,62 @@ useEffect(() => {
 }, [checkUrgency]);
 
 
+  const renderOverview = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '30px', animation: 'fadeIn 0.4s ease-out' }}>
+      {/* 4 Glass Stats Cards */}
+      <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px' }}>
+        <div className="stat-card glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <span className="stat-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+            <History size={16} color="var(--color-maroon)" /> Total Requests
+          </span>
+          <span className="stat-value" style={{ fontSize: '32px', fontWeight: '800', color: 'var(--color-maroon)' }}>{studentStats?.totalBorrows ?? 0}</span>
+        </div>
+        <div className="stat-card glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <span className="stat-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+            <Clock size={16} color="var(--color-success)" /> Active Loans
+          </span>
+          <span className="stat-value" style={{ fontSize: '32px', fontWeight: '800', color: 'var(--color-success)' }}>{studentStats?.activeLoans ?? 0}</span>
+        </div>
+        <div className="stat-card glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <span className="stat-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+            <LayoutGrid size={16} color="var(--color-gold)" /> Pending Requests
+          </span>
+          <span className="stat-value" style={{ fontSize: '32px', fontWeight: '800', color: 'var(--color-gold)' }}>{studentStats?.pendingRequests ?? 0}</span>
+        </div>
+        <div className="stat-card glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <span className="stat-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-secondary)' }}>
+            <Library size={16} color="var(--text-primary)" /> Favorite Genre
+          </span>
+          <span className="stat-value" style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', marginTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{studentStats?.favoriteCategory ?? 'None'}</span>
+        </div>
+      </div>
+
+      {/* SVG Trend Line/Bar Chart */}
+      <div className="charts-grid" style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '30px', marginTop: '10px' }}>
+        <div className="chart-card glass-panel">
+          <h3 className="chart-title" style={{ fontSize: '15px', fontWeight: '700', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--color-border)', paddingBottom: '12px' }}>
+            <History size={16} color="var(--color-maroon)" /> My Borrowing Trend (Last 6 Months)
+          </h3>
+          <BorrowingActivityChart data={studentStats?.borrowingTrends} />
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <DashboardLayout>
       {/* ... (Existing Action Bar code) ... */}
       <div className="action-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', marginTop: '16px' }}>
         <div className="tabs-group" style={{ display: 'flex', gap: '8px', background: '#F3F4F6', padding: '4px', borderRadius: '12px' }}>
+          <button 
+            className={`tab-btn ${activeTab === 'overview' ? 'active' : 'inactive'}`}
+            onClick={() => setActiveTab('overview')}
+            style={{ borderRadius: '8px' }}
+          >
+            <LayoutDashboard size={18} />
+            Overview
+          </button>
+
           <button 
             className={`tab-btn ${activeTab === 'browse' ? 'active' : 'inactive'}`}
             onClick={() => setActiveTab('browse')}
@@ -88,6 +149,7 @@ useEffect(() => {
       </div>
 
       <div style={{ width: '100%' }}>
+        {activeTab === 'overview' && renderOverview()}
         {activeTab === 'browse' && <BrowseView />}
         {activeTab === 'activity' && <ActivityView />}
       </div>

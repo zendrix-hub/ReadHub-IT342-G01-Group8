@@ -21,20 +21,20 @@
 }
 
 /* 2. OVERRIDE VARIABLES FOR DARK MODE */
-body[data-theme='dark'] {
+body.dark-mode, body[data-theme='dark'] {
   --maroon: #FF4D6A;        /* Lighter/Brighter Maroon for dark backgrounds */
-  --beige-bg: #2C2C2C;      /* Dark gray instead of beige */
-  --bg-page: #121212;       /* Deep black/gray background */
-  --white: #1E1E1E;         /* Dark Card Background */
-  --text-main: #E5E7EB;     /* Light Gray Text */
-  --text-sub: #9CA3AF;      /* Muted Gray Text */
-  --border-light: #374151;  /* Dark Border */
+  --beige-bg: #334155;      /* Slate-700 active backgrounds */
+  --bg-page: #0F172A;       /* Slate-900 rich dark background */
+  --white: #1E293B;         /* Slate-800 Card Background */
+  --text-main: #F8FAFC;     /* Slate-50 Text */
+  --text-sub: #94A3B8;      /* Slate-400 Muted Text */
+  --border-light: #334155;  /* Slate-700 Borders */
   --danger: #EF4444;
-  --danger-bg: #450A0A;     /* Dark Red Background */
+  --danger-bg: rgba(239, 68, 68, 0.15);     /* Transparent red background */
   --danger-text: #FCA5A5;   /* Light Red Text */
   
-  --card-shadow: 0 4px 6px rgba(0,0,0,0.3);
-  --header-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --header-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
 }
 
 .dashboard-container {
@@ -358,7 +358,7 @@ tr.row-overdue td { background-color: var(--danger-bg); color: var(--danger-text
 }
 
 .modal-container {
-  background: white;
+  background: var(--white);
   width: 100%;
   max-width: 500px; /* Standard modal width */
   border-radius: 16px;
@@ -366,6 +366,7 @@ tr.row-overdue td { background-color: var(--danger-bg); color: var(--danger-text
   overflow: hidden;
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
+  border: 1px solid var(--border-light);
 }
 
 @keyframes slideUp {
@@ -383,19 +384,19 @@ tr.row-overdue td { background-color: var(--danger-bg); color: var(--danger-text
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  border-bottom: 1px solid #F3F4F6;
+  border-bottom: 1px solid var(--border-light);
 }
 
 .modal-title h2 {
   font-size: 20px;
   font-weight: 700;
-  color: #111827;
+  color: var(--text-main);
   margin: 0 0 4px 0;
 }
 
 .modal-title p {
   font-size: 14px;
-  color: #6B7280;
+  color: var(--text-sub);
   margin: 0;
 }
 
@@ -403,15 +404,15 @@ tr.row-overdue td { background-color: var(--danger-bg); color: var(--danger-text
   background: transparent;
   border: none;
   cursor: pointer;
-  color: #9CA3AF;
+  color: var(--text-sub);
   padding: 8px; /* Larger click area */
   border-radius: 50%;
   transition: all 0.2s;
   display: flex;
 }
 .btn-close:hover {
-  background-color: #F3F4F6;
-  color: #111827;
+  background-color: var(--bg-page);
+  color: var(--text-main);
 }
 
 /* --- MODAL BODY & FORM --- */
@@ -427,7 +428,7 @@ tr.row-overdue td { background-color: var(--danger-bg); color: var(--danger-text
   display: block;
   font-size: 13px;
   font-weight: 600;
-  color: #374151;
+  color: var(--text-main);
   margin-bottom: 6px;
   text-transform: uppercase;
   letter-spacing: 0.025em;
@@ -437,22 +438,22 @@ tr.row-overdue td { background-color: var(--danger-bg); color: var(--danger-text
   width: 100%;
   padding: 10px 14px;
   border-radius: 8px;
-  border: 1px solid #D1D5DB; /* Neutral border */
-  background-color: #FFFFFF;
+  border: 1px solid var(--border-light); /* Neutral border */
+  background-color: var(--white);
   font-size: 14px;
-  color: #111827;
+  color: var(--text-main);
   outline: none;
   transition: all 0.2s ease-in-out;
 }
 
 /* SaaS Focus State: Maroon Glow */
 .form-input:focus {
-  border-color: #821124; 
-  box-shadow: 0 0 0 3px rgba(130, 17, 36, 0.1);
+  border-color: var(--maroon); 
+  box-shadow: 0 0 0 3px var(--color-maroon-glow);
 }
 
 .form-input::placeholder {
-  color: #9CA3AF;
+  color: var(--text-light);
 }
 
 /* Grid for smaller inputs */
@@ -465,8 +466,8 @@ tr.row-overdue td { background-color: var(--danger-bg); color: var(--danger-text
 /* --- MODAL FOOTER --- */
 .modal-footer {
   padding: 20px 32px;
-  background-color: #F9FAFB; /* Subtle footer bg */
-  border-top: 1px solid #E5E7EB;
+  background-color: var(--bg-page); /* Subtle footer bg */
+  border-top: 1px solid var(--border-light);
   display: flex;
   justify-content: flex-end;
   gap: 12px;
@@ -474,23 +475,23 @@ tr.row-overdue td { background-color: var(--danger-bg); color: var(--danger-text
 
 .btn-cancel {
   padding: 10px 20px;
-  background: white;
-  border: 1px solid #D1D5DB;
+  background: var(--white);
+  border: 1px solid var(--border-light);
   border-radius: 8px;
   font-weight: 600;
   font-size: 14px;
-  color: #374151;
+  color: var(--text-main);
   cursor: pointer;
   transition: all 0.2s;
 }
 .btn-cancel:hover { 
-  background: #F3F4F6; 
-  border-color: #9CA3AF;
+  background: var(--bg-page); 
+  border-color: var(--text-light);
 }
 
 .btn-confirm {
   padding: 10px 24px;
-  background: #821124; /* Brand Maroon */
+  background: var(--maroon); /* Brand Maroon */
   border: 1px solid transparent;
   border-radius: 8px;
   font-weight: 600;

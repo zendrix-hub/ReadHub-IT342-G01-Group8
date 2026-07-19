@@ -18,4 +18,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // We keep this available, but UserService is now using findAll() + Filter
     // which is safer for debugging.
     List<User> findByRole(Role role);
+
+    long countByRole(Role role);
 }

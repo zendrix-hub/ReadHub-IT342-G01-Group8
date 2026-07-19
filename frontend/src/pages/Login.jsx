@@ -123,6 +123,12 @@ const Login = () => {
 
   return (
     <div className="login-container">
+      <div className="bg-blobs">
+        <div className="blob blob-1"></div>
+        <div className="blob blob-2"></div>
+        <div className="blob blob-3"></div>
+      </div>
+
       {notification && (
         <div className={`login-toast ${notification.type}`}>
           {notification.type === 'success' ? <CheckCircle size={20} /> : <AlertCircle size={20} />}

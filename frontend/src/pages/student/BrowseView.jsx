@@ -91,7 +91,8 @@ const BookDetailModal = ({ book, onClose, onRequest, isProcessing }) => {
 const BrowseView = () => {
   const [books, setBooks] = useState([]);
   const [history, setHistory] = useState([]); 
-  const [keyword, setKeyword] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedKeyword, setDebouncedKeyword] = useState('');
   const [selectedBook, setSelectedBook] = useState(null);
   const [processingId, setProcessingId] = useState(null); 
 
@@ -99,10 +100,18 @@ const BrowseView = () => {
   const { showToast } = useToast();
   const { confirm } = useConfirm();
 
+  // Debounce keyword state changes by 300ms
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedKeyword(searchTerm);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
   // 1. Fetch Books AND History
   const loadData = useCallback(() => {
     // Fetch Books
-    fetch(`http://localhost:8080/api/books?keyword=${keyword}`, {
+    fetch(`http://localhost:8080/api/books?keyword=${debouncedKeyword}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => res.json())
@@ -116,7 +125,7 @@ const BrowseView = () => {
     .then(res => res.json())
     .then(data => setHistory(data))
     .catch(err => console.error(err));
-  }, [token, keyword]);
+  }, [token, debouncedKeyword]);
 
   useEffect(() => {
     loadData();
@@ -200,8 +209,8 @@ const BrowseView = () => {
             type="text" 
             className="search-input" 
             placeholder="Search items by title, author, or ISBN..." 
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>

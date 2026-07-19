@@ -32,21 +32,10 @@ public class UserService {
 
     // --- MAIN FIX: Get All Students ---
     public List<UserProfileDto> getAllStudents() {
-        // 1. Fetch EVERYTHING from the database
-        List<User> allUsers = userRepository.findAll();
-        
-        // System.out.println("DEBUG: UserService found total " + allUsers.size() + " users in database.");
+        // Query only student users from the database layer directly
+        List<User> studentsList = userRepository.findByRole(Role.STUDENT);
 
-        // 2. Filter in Java (More reliable than SQL for Enums sometimes)
-        List<UserProfileDto> students = allUsers.stream()
-                .filter(user -> {
-                    boolean isStudent = user.getRole() == Role.STUDENT;
-                    // Debug print to see what Java thinks the role is
-                    if (isStudent) {
-                        System.out.println(" -> Found Student: " + user.getEmail());
-                    }
-                    return isStudent;
-                })
+        return studentsList.stream()
                 .map(user -> UserProfileDto.builder()
                         .userId(user.getUserId())
                         .firstName(user.getFirstName())
@@ -56,9 +45,6 @@ public class UserService {
                         .avatarUrl(user.getAvatarUrl())
                         .build())
                 .collect(Collectors.toList());
-                
-        System.out.println("DEBUG: Returning " + students.size() + " student DTOs to frontend.");
-        return students;
     }
 
     // --- Other Methods (Kept exactly as they were) ---

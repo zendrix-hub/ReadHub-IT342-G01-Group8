@@ -1,26 +1,78 @@
 :root {
   /* Core Brand Palette */
   --color-maroon: #821124;
+  --color-maroon-light: #A8283B;
+  --color-maroon-glow: rgba(130, 17, 36, 0.15);
   --color-gold: #FDC83A;
+  --color-gold-light: #FFE28C;
+  --color-gold-glow: rgba(253, 200, 58, 0.2);
   
-  /* Backgrounds */
-  --bg-page: #F4F6F9;
+  /* Backgrounds & Glassmorphism */
+  --bg-page: #F8FAFC;
+  --bg-page-radial: radial-gradient(circle at 80% 20%, rgba(253, 200, 58, 0.06) 0%, transparent 40%), radial-gradient(circle at 10% 80%, rgba(130, 17, 36, 0.05) 0%, transparent 50%);
   --bg-card: #FFFFFF;
   --bg-input: #FFFFFF;
   
+  /* Glassmorphism Specs */
+  --glass-bg: rgba(255, 255, 255, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --glass-blur: blur(14px);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.06), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  
   /* Typography Colors */
-  --text-primary: #4D4D4D;
-  --text-secondary: #8C8C8C;
+  --text-primary: #1E293B;     /* Slate-800 */
+  --text-secondary: #64748B;   /* Slate-500 */
+  --text-light: #94A3B8;       /* Slate-400 */
   --text-white: #FFFFFF;
   
   /* Utilities */
-  --color-success: #5CB85C;
-  --color-warning: #FDC83A;
-  --color-border: #E0E0E0;
-  --color-danger: #DC3545;
+  --color-success: #10B981;     /* Emerald-500 */
+  --color-success-light: #D1FAE5;
+  --color-warning: #F59E0B;     /* Amber-500 */
+  --color-border: #E2E8F0;      /* Slate-200 */
+  --color-danger: #EF4444;      /* Red-500 */
+  --color-danger-light: #FEE2E2;
   
   /* Spacing & Sizing */
-  --radius-default: 8px;
-  --shadow-subtle: 0 2px 4px rgba(0,0,0,0.04);
-  --shadow-card: 0 4px 12px rgba(0,0,0,0.06);
+  --radius-default: 12px;
+  --radius-large: 16px;
+  --shadow-subtle: 0 4px 6px -1px rgba(0,0,0,0.02), 0 2px 4px -1px rgba(0,0,0,0.01);
+  --shadow-card: 0 10px 15px -3px rgba(0,0,0,0.04), 0 4px 6px -2px rgba(0,0,0,0.02);
+  --shadow-glow: 0 0 20px rgba(130, 17, 36, 0.08);
+}
+
+body.dark-mode, body[data-theme='dark'] {
+  --color-maroon: #FF4D6A;
+  --color-maroon-light: #FF758F;
+  --color-maroon-glow: rgba(255, 77, 106, 0.2);
+  --color-gold: #FDC83A;
+  --color-gold-light: #FFE28C;
+  --color-gold-glow: rgba(253, 200, 58, 0.15);
+
+  /* Backgrounds & Glassmorphism */
+  --bg-page: #0F172A; /* Slate 900 */
+  --bg-page-radial: radial-gradient(circle at 80% 20%, rgba(253, 200, 58, 0.05) 0%, transparent 45%), radial-gradient(circle at 10% 80%, rgba(255, 77, 106, 0.08) 0%, transparent 55%);
+  --bg-card: #1E293B; /* Slate 800 */
+  --bg-input: #1E293B;
+
+  /* Glassmorphism Specs */
+  --glass-bg: rgba(30, 41, 59, 0.45); /* Slate 800 semi-transparent */
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-blur: blur(14px);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+
+  /* Typography Colors */
+  --text-primary: #F8FAFC;     /* Slate-50 */
+  --text-secondary: #94A3B8;   /* Slate-400 */
+  --text-light: #64748B;       /* Slate-500 */
+  
+  /* Utilities */
+  --color-success: #10B981;
+  --color-success-light: rgba(16, 185, 129, 0.15);
+  --color-border: #334155;      /* Slate-700 */
+  --color-danger-light: rgba(239, 68, 68, 0.15);
+
+  --shadow-subtle: 0 4px 6px -1px rgba(0,0,0,0.2), 0 2px 4px -1px rgba(0,0,0,0.1);
+  --shadow-card: 0 10px 15px -3px rgba(0,0,0,0.3), 0 4px 6px -2px rgba(0,0,0,0.2);
+  --shadow-glow: 0 0 20px rgba(255, 77, 106, 0.1);
 }
