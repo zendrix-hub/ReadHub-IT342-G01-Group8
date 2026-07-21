@@ -1,34 +1,39 @@
 package com.readhub.bookmanagement.controller;
 
-import com.readhub.bookmanagement.model.Notification;
+import com.readhub.bookmanagement.dto.ApiResponse;
+import com.readhub.bookmanagement.dto.NotificationDto;
 import com.readhub.bookmanagement.service.NotificationService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/notifications")
 @RequiredArgsConstructor
+@Tag(name = "Notifications", description = "Endpoints for retrieving and managing user notifications")
 public class NotificationController {
 
     private final NotificationService notificationService;
 
-    // Endpoint to get notifications for the logged-in user
     @GetMapping
-    public ResponseEntity<List<Notification>> getMyNotifications(Authentication authentication) {
+    @Operation(summary = "Get notifications for the authenticated user", description = "Returns all notification records for the currently logged-in user, ordered by most recent first.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Notifications retrieved successfully")
+    public ResponseEntity<ApiResponse<List<NotificationDto>>> getMyNotifications(Authentication authentication) {
         String email = authentication.getName();
-        // Ensure you have a service method to get notifications by email
-        return ResponseEntity.ok(notificationService.getMyNotifications(email));
+        List<NotificationDto> notifications = notificationService.getMyNotifications(email);
+        return ResponseEntity.ok(ApiResponse.success(notifications, "Notifications retrieved successfully"));
     }
 
-    @org.springframework.web.bind.annotation.PutMapping("/read") // PUT /api/notifications/read
-    public ResponseEntity<Void> markAsRead(Authentication authentication) {
+    @PutMapping("/read")
+    @Operation(summary = "Mark all notifications as read", description = "Sets all unread notification records for the authenticated user to read status.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Notifications marked as read successfully")
+    public ResponseEntity<ApiResponse<Void>> markAsRead(Authentication authentication) {
         notificationService.markAllAsRead(authentication.getName());
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(ApiResponse.success(null, "Notifications marked as read successfully"));
     }
 }

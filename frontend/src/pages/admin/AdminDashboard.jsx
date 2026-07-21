@@ -42,17 +42,20 @@ const AdminDashboard = () => {
       
       const txnRes = await fetch('http://localhost:8080/api/transactions', { headers });
       const txnData = await txnRes.json();
-      const safeTxn = Array.isArray(txnData) ? txnData : [];
+      const txnList = txnData.data || txnData;
+      const safeTxn = Array.isArray(txnList) ? txnList : [];
       setTransactions(safeTxn);
 
       const bookRes = await fetch('http://localhost:8080/api/books', { headers });
       const bookData = await bookRes.json();
-      const safeBooks = Array.isArray(bookData) ? bookData : [];
+      const bookList = bookData.data || bookData;
+      const safeBooks = Array.isArray(bookList) ? bookList : [];
       setInventory(safeBooks);
 
       const userRes = await fetch('http://localhost:8080/api/users', { headers });
       const userData = await userRes.json();
-      const safeUsers = Array.isArray(userData) ? userData : [];
+      const userList = userData.data || userData;
+      const safeUsers = Array.isArray(userList) ? userList : [];
       setUsers(safeUsers);
 
       // --- IMPROVED OVERDUE CALCULATION ---
@@ -69,7 +72,7 @@ const AdminDashboard = () => {
       const statsRes = await fetch('http://localhost:8080/api/dashboard/admin', { headers });
       if (statsRes.ok) {
         const statsData = await statsRes.json();
-        setDashboardStats(statsData);
+        setDashboardStats(statsData.data || statsData);
       }
 
       setStats({
@@ -133,7 +136,8 @@ useEffect(() => {
     });
 
     if (res.ok) {
-      const updatedTxn = await res.json(); // get updated transaction from backend
+      const resData = await res.json();
+      const updatedTxn = resData.data || resData; // get updated transaction from backend
 
       setTransactions(prev => {
         // Replace the old transaction with the updated one
@@ -242,7 +246,7 @@ useEffect(() => {
 
             return (
               <tr key={txn.transactionId} style={isLate ? { backgroundColor: '#FEF2F2' } : {}}>
-                <td><div style={{ fontWeight: 600 }}>{txn.user?.firstName} {txn.user?.lastName}</div><div style={{ fontSize: 12, color: '#6B7280' }}>{txn.user?.email}</div></td>
+                <td><div style={{ fontWeight: 600 }}>{txn.user?.firstName} {txn.user?.lastName}</div><div style={{ fontSize: 12, color: 'var(--text-sub)' }}>{txn.user?.email}</div></td>
                 <td>
                     {txn.book?.title}
                     {isLate && (
@@ -275,7 +279,7 @@ useEffect(() => {
         <tbody>
           {inventory.map(book => (
             <tr key={book.bookId}>
-              <td style={{ fontFamily: 'monospace', color: '#6B7280' }}>{book.isbn}</td>
+              <td style={{ fontFamily: 'monospace', color: 'var(--text-sub)' }}>{book.isbn}</td>
               <td style={{ fontWeight: 600 }}>{book.title}</td>
               <td>{book.category?.name}</td>
               <td><span className={`badge ${book.availableCopies > 0 ? 'badge-available' : 'badge-checked-out'}`}>{book.availableCopies}/{book.totalCopies}</span></td>
@@ -382,7 +386,7 @@ useEffect(() => {
         {activeTab === 'inventory' && <button className="btn-add-book" onClick={openAddModal}><Plus size={18} /> Add Book</button>}
       </div>
 
-      {activeTab === 'overview' && <>{renderOverview()}<h3 className="section-title">Recent Transactions</h3>{renderTransactions()}</>}
+      {activeTab === 'overview' && renderOverview()}
       {activeTab === 'transactions' && renderTransactions()}
       {activeTab === 'inventory' && renderInventory()}
       {activeTab === 'users' && renderUsers()}

@@ -100,7 +100,8 @@ const Profile = () => {
         });
 
         if (!imgRes.ok) throw new Error("Failed to upload image");
-        finalAvatarUrl = await imgRes.text();
+        const imgData = await imgRes.json();
+        finalAvatarUrl = imgData.data || imgData;
       }
 
       // Step B: Update Text Data

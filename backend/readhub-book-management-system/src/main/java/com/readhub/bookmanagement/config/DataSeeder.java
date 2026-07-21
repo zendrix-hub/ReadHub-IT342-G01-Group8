@@ -8,12 +8,14 @@ import com.readhub.bookmanagement.repository.BookRepository;
 import com.readhub.bookmanagement.repository.CategoryRepository;
 import com.readhub.bookmanagement.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class DataSeeder implements CommandLineRunner {
 
     private final CategoryRepository categoryRepository;
@@ -40,7 +42,7 @@ public class DataSeeder implements CommandLineRunner {
                     .role(Role.ADMIN)
                     .build();
             userRepository.save(admin);
-            System.out.println("✅ Admin seeded: admin@readhub.com");
+            log.info("Admin seeded: admin@readhub.com");
         }
 
         // 3. Seed Student (Uno) - NOW PERSISTENT!
@@ -53,7 +55,7 @@ public class DataSeeder implements CommandLineRunner {
                     .role(Role.STUDENT)
                     .build();
             userRepository.save(student);
-            System.out.println("✅ Student seeded: uno@readhub.com");
+            log.info("Student seeded: uno@readhub.com");
         }
 
         // 4. Seed a Sample Book (Optional, for demo)
@@ -68,7 +70,7 @@ public class DataSeeder implements CommandLineRunner {
                     .category(tech)
                     .build();
             bookRepository.save(b1);
-            System.out.println("✅ Sample Book seeded");
+            log.info("Sample Book seeded");
         }
     }
 

@@ -88,10 +88,11 @@ const Login = () => {
       });
       
       const data = await res.json();
+      const token = data.success ? data.data?.token : data.token;
       
-      if (data.token) {
-        login(data.token);
-        const payload = parseJwt(data.token);
+      if (token) {
+        login(token);
+        const payload = parseJwt(token);
         
         let userRole = 'ROLE_STUDENT';
         if (payload?.roles && Array.isArray(payload.roles)) userRole = payload.roles[0];
@@ -108,7 +109,8 @@ const Login = () => {
 
         navigate(userRole === 'ROLE_ADMIN' ? '/admin/dashboard' : '/student/dashboard');
       } else {
-        showToast(mode === 'LOGIN' ? 'Invalid Credentials' : 'Registration Failed', 'error');
+        const errorMsg = data.message || (mode === 'LOGIN' ? 'Invalid Credentials' : 'Registration Failed');
+        showToast(errorMsg, 'error');
       }
     } catch (err) {
       showToast('Network Error: Unable to connect.', 'error');

@@ -3,6 +3,7 @@ package com.readhub.bookmanagement.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -17,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import org.springframework.web.cors.CorsConfigurationSource;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -25,17 +28,21 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final CustomUserDetailsService customUserDetailsService;
+    private final CorsConfigurationSource corsConfigurationSource;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource))
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/books/**").permitAll() // Allow public viewing of books
+                .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll() // Allow Swagger UI and API docs
+                .requestMatchers(HttpMethod.GET, "/api/books", "/api/books/**").permitAll() // Allow public viewing of books (GET only)
                 .requestMatchers("/uploads/**").permitAll()   // Allow public access to uploaded images
                 .requestMatchers("/favicon.ico").permitAll()  // FIX: Allow favicon access
                 .requestMatchers("/error").permitAll()        // FIX: Allow Spring Boot default error path
+                .requestMatchers("/actuator/**").permitAll()  // Allow monitoring checks
                 .anyRequest().authenticated()
             )
             .sessionManagement(sess -> sess

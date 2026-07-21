@@ -21,7 +21,7 @@ const ManageBooks = () => {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => res.json())
-    .then(data => setBooks(data))
+    .then(data => setBooks(data.data || data))
     .catch(() => showToast("Failed to load books", "error"));
   }, [token, showToast]); 
 

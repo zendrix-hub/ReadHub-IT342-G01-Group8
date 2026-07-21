@@ -12,7 +12,7 @@ const ActivityView = () => {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => res.json())
-    .then(data => setHistory(data))
+    .then(data => setHistory(data.data || data))
     .catch(err => console.error("Error fetching history:", err));
   }, [token]);
 
@@ -46,26 +46,26 @@ const ActivityView = () => {
       </div>
 
       {/* HISTORY TABLE */}
-      <div className="table-wrapper" style={{ width: '100%', background: 'white', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
+      <div className="table-wrapper" style={{ width: '100%', background: 'var(--white)', borderRadius: '12px', boxShadow: 'var(--card-shadow)', overflow: 'hidden' }}>
         {history.length > 0 ? (
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-            <thead style={{ background: '#F9FAFB', borderBottom: '1px solid #E5E7EB' }}>
+            <thead style={{ background: 'var(--bg-page)', borderBottom: '1px solid var(--border-light)' }}>
               <tr>
-                <th style={{ padding: '20px 24px', fontSize: '13px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase' }}>Book Title</th>
-                <th style={{ padding: '20px 24px', fontSize: '13px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase' }}>Author</th>
-                <th style={{ padding: '20px 24px', fontSize: '13px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase' }}>Status</th>
-                <th style={{ padding: '20px 24px', fontSize: '13px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase' }}>Request Date</th>
-                <th style={{ padding: '20px 24px', fontSize: '13px', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase' }}>Due Date</th>
+                <th style={{ padding: '20px 24px', fontSize: '13px', fontWeight: '600', color: 'var(--text-sub)', textTransform: 'uppercase' }}>Book Title</th>
+                <th style={{ padding: '20px 24px', fontSize: '13px', fontWeight: '600', color: 'var(--text-sub)', textTransform: 'uppercase' }}>Author</th>
+                <th style={{ padding: '20px 24px', fontSize: '13px', fontWeight: '600', color: 'var(--text-sub)', textTransform: 'uppercase' }}>Status</th>
+                <th style={{ padding: '20px 24px', fontSize: '13px', fontWeight: '600', color: 'var(--text-sub)', textTransform: 'uppercase' }}>Request Date</th>
+                <th style={{ padding: '20px 24px', fontSize: '13px', fontWeight: '600', color: 'var(--text-sub)', textTransform: 'uppercase' }}>Due Date</th>
               </tr>
             </thead>
             <tbody>
               {history.map(txn => (
-                <tr key={txn.transactionId} style={{ borderBottom: '1px solid #F3F4F6' }}>
-                  <td style={{ padding: '20px 24px', fontWeight: '600', color: '#111827' }}>{txn.book?.title}</td>
-                  <td style={{ padding: '20px 24px', color: '#6B7280' }}>{txn.book?.author}</td>
+                <tr key={txn.transactionId} style={{ borderBottom: '1px solid var(--border-light)' }}>
+                  <td style={{ padding: '20px 24px', fontWeight: '600', color: 'var(--text-main)' }}>{txn.bookTitle}</td>
+                  <td style={{ padding: '20px 24px', color: 'var(--text-sub)' }}>{txn.bookAuthor}</td>
                   <td style={{ padding: '20px 24px' }}><StatusBadge status={txn.status} /></td>
-                  <td style={{ padding: '20px 24px', color: '#4B5563' }}>{new Date(txn.requestDate).toLocaleDateString()}</td>
-                  <td style={{ padding: '20px 24px', color: '#4B5563' }}>{txn.dueDate ? new Date(txn.dueDate).toLocaleDateString() : '-'}</td>
+                  <td style={{ padding: '20px 24px', color: 'var(--text-sub)' }}>{new Date(txn.requestDate).toLocaleDateString()}</td>
+                  <td style={{ padding: '20px 24px', color: 'var(--text-sub)' }}>{txn.dueDate ? new Date(txn.dueDate).toLocaleDateString() : '-'}</td>
                 </tr>
               ))}
             </tbody>

@@ -12,16 +12,6 @@ const AddBookModal = ({ onClose, onSubmit, initialData }) => {
       { id: 5, name: 'Other' }
   ];
 
-  // --- NEW: PRESET BOOKS FOR DEMO ---
-  const PRESETS = [
-    { title: "Clean Code", author: "Robert C. Martin", isbn: "978-0132350884", year: 2008, copies: 5, catId: 1 },
-    { title: "The Pragmatic Programmer", author: "Andrew Hunt", isbn: "978-0201616224", year: 1999, copies: 3, catId: 1 },
-    { title: "Introduction to Algorithms", author: "Thomas H. Cormen", isbn: "978-0262033848", year: 2009, copies: 2, catId: 1 },
-    { title: "Design Patterns", author: "Erich Gamma", isbn: "978-0201633610", year: 1994, copies: 4, catId: 1 },
-    { title: "Sapiens: A Brief History", author: "Yuval Noah Harari", isbn: "978-0062316097", year: 2015, copies: 5, catId: 2 },
-    { title: "Atomic Habits", author: "James Clear", isbn: "978-0735211292", year: 2018, copies: 10, catId: 4 }
-  ];
-
   const [form, setForm] = useState({
     title: '',
     author: '',
@@ -30,6 +20,7 @@ const AddBookModal = ({ onClose, onSubmit, initialData }) => {
     totalCopies: 1,
     categoryId: 1 
   });
+  const [fetching, setFetching] = useState(false);
 
   // Load initial data if editing
   useEffect(() => {
@@ -45,20 +36,49 @@ const AddBookModal = ({ onClose, onSubmit, initialData }) => {
     }
   }, [initialData]);
 
-  // --- NEW: Handle Preset Selection ---
-  const handlePresetChange = (e) => {
-    const index = e.target.value;
-    if (index === "") return; // "Select..." option
-
-    const book = PRESETS[index];
-    setForm({
-      title: book.title,
-      author: book.author,
-      isbn: book.isbn,
-      publicationYear: book.year,
-      totalCopies: book.copies,
-      categoryId: book.catId
-    });
+  // --- ISBN LOOKUP HANDLER ---
+  const handleIsbnLookup = async () => {
+    if (!form.isbn) {
+      alert("Please enter an ISBN first.");
+      return;
+    }
+    
+    setFetching(true);
+    try {
+      const cleanIsbn = form.isbn.replace(/[-\s]/g, '');
+      const res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${cleanIsbn}&format=json&jscmd=data`);
+      if (res.ok) {
+        const data = await res.json();
+        const bookKey = `ISBN:${cleanIsbn}`;
+        const bookInfo = data[bookKey];
+        
+        if (bookInfo) {
+          let year = '';
+          if (bookInfo.publish_date) {
+            const match = bookInfo.publish_date.match(/\d{4}/);
+            if (match) year = parseInt(match[0]);
+          }
+          
+          const authorName = bookInfo.authors?.map(a => a.name).join(', ') || '';
+          
+          setForm(prev => ({
+            ...prev,
+            title: bookInfo.title || prev.title,
+            author: authorName || prev.author,
+            publicationYear: year || prev.publicationYear,
+          }));
+        } else {
+          alert("No book details found for this ISBN. Please enter details manually.");
+        }
+      } else {
+        alert("Failed to connect to the lookup service. Please fill details manually.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error looking up ISBN. Please enter details manually.");
+    } finally {
+      setFetching(false);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -82,23 +102,34 @@ const AddBookModal = ({ onClose, onSubmit, initialData }) => {
 
         <div className="modal-body">
           
-          {/* --- NEW: QUICK FILL DROPDOWN (Only for Add Mode) --- */}
+          {/* --- ISBN LOOKUP TOOL (Only for Add Mode) --- */}
           {!initialData && (
-            <div style={{ marginBottom: '20px', padding: '12px', background: '#F0F9FF', border: '1px solid #BAE6FD', borderRadius: '8px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '600', color: '#0284C7', marginBottom: '8px' }}>
-                <Sparkles size={14} /> Quick Fill (Demo Mode)
+            <div style={{ marginBottom: '20px', padding: '12px', background: 'var(--beige-bg)', border: '1px solid var(--border-light)', borderRadius: '8px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: '600', color: 'var(--maroon)', marginBottom: '8px' }}>
+                <Sparkles size={14} /> Auto-fill from ISBN
               </label>
-              <select 
-                className="form-input" 
-                onChange={handlePresetChange}
-                defaultValue=""
-                style={{ borderColor: '#BAE6FD' }}
-              >
-                <option value="">Select a popular book...</option>
-                {PRESETS.map((book, idx) => (
-                  <option key={idx} value={idx}>{book.title} ({book.author})</option>
-                ))}
-              </select>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input 
+                  type="text"
+                  className="form-input" 
+                  placeholder="Enter ISBN (e.g., 9780132350884)"
+                  value={form.isbn}
+                  onChange={(e) => setForm({ ...form, isbn: e.target.value })}
+                  style={{ margin: 0 }}
+                />
+                <button 
+                  type="button"
+                  onClick={handleIsbnLookup}
+                  className="btn-confirm"
+                  disabled={fetching}
+                  style={{ whiteSpace: 'nowrap', padding: '10px 16px', margin: 0, backgroundColor: 'var(--maroon)' }}
+                >
+                  {fetching ? 'Searching...' : 'Lookup & Fill'}
+                </button>
+              </div>
+              <p style={{ fontSize: '11px', color: 'var(--text-sub)', marginTop: '6px', marginBottom: 0 }}>
+                Query the Open Library database to automatically populate Title, Author, and Publication Year.
+              </p>
             </div>
           )}
 

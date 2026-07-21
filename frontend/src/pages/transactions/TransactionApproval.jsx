@@ -12,7 +12,7 @@ const TransactionApproval = () => {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => res.json())
-    .then(data => setTransactions(data));
+    .then(data => setTransactions(data.data || data));
   };
 
   useEffect(() => { fetchTransactions(); }, [token]);

@@ -33,8 +33,9 @@ const StudentDashboard = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
+      const historyList = data.data || data;
       
-      const activeLoans = data.filter(t => t.status === 'BORROWED' || t.status === 'OVERDUE');
+      const activeLoans = historyList.filter(t => t.status === 'BORROWED' || t.status === 'OVERDUE');
       
       const overdue = activeLoans.filter(t => t.status === 'OVERDUE' || getDaysRemaining(t.dueDate) < 0);
       const dueSoon = activeLoans.filter(t => {
@@ -47,7 +48,7 @@ const StudentDashboard = () => {
       });
       if (statsRes.ok) {
         const statsData = await statsRes.json();
-        setStudentStats(statsData);
+        setStudentStats(statsData.data || statsData);
       }
 
       if (overdue.length > 0 || dueSoon.length > 0) {
@@ -117,12 +118,11 @@ useEffect(() => {
   return (
     <DashboardLayout>
       {/* ... (Existing Action Bar code) ... */}
-      <div className="action-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', marginTop: '16px' }}>
-        <div className="tabs-group" style={{ display: 'flex', gap: '8px', background: '#F3F4F6', padding: '4px', borderRadius: '12px' }}>
+      <div className="action-bar">
+        <div className="tabs-group">
           <button 
             className={`tab-btn ${activeTab === 'overview' ? 'active' : 'inactive'}`}
             onClick={() => setActiveTab('overview')}
-            style={{ borderRadius: '8px' }}
           >
             <LayoutDashboard size={18} />
             Overview
@@ -131,7 +131,6 @@ useEffect(() => {
           <button 
             className={`tab-btn ${activeTab === 'browse' ? 'active' : 'inactive'}`}
             onClick={() => setActiveTab('browse')}
-            style={{ borderRadius: '8px' }}
           >
             <LayoutGrid size={18} />
             Browse Items
@@ -140,7 +139,6 @@ useEffect(() => {
           <button 
             className={`tab-btn ${activeTab === 'activity' ? 'active' : 'inactive'}`}
             onClick={() => setActiveTab('activity')}
-            style={{ borderRadius: '8px' }}
           >
             <History size={18} />
             My Activity

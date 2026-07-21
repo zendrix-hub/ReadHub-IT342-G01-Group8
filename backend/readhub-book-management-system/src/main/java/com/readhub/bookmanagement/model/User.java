@@ -1,5 +1,6 @@
 package com.readhub.bookmanagement.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -37,6 +38,7 @@ public class User {
     @Column(name = "role") 
     private Role role;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     @Column(name = "registration_date", updatable = false)
     private LocalDateTime registrationDate;
 

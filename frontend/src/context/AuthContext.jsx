@@ -31,12 +31,13 @@ export const AuthProvider = ({ children }) => {
         
         if (res.ok) {
           const profileData = await res.json();
+          const p = profileData.data || profileData;
           setUser({
             email: decoded.sub,
             role: role,
-            firstName: profileData.firstName,
-            lastName: profileData.lastName,
-            avatarUrl: profileData.avatarUrl 
+            firstName: p.firstName,
+            lastName: p.lastName,
+            avatarUrl: p.avatarUrl 
           });
         } else {
           setUser({ email: decoded.sub, role: role });

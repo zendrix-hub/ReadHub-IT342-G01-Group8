@@ -1,5 +1,6 @@
 package com.readhub.bookmanagement.controller;
 
+import com.readhub.bookmanagement.dto.ApiResponse;
 import com.readhub.bookmanagement.dto.AdminDashboardStatsDto;
 import com.readhub.bookmanagement.dto.StudentDashboardStatsDto;
 import com.readhub.bookmanagement.service.DashboardService;
@@ -20,13 +21,15 @@ public class DashboardController {
 
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<AdminDashboardStatsDto> getAdminStats() {
-        return ResponseEntity.ok(dashboardService.getAdminStats());
+    public ResponseEntity<ApiResponse<AdminDashboardStatsDto>> getAdminStats() {
+        AdminDashboardStatsDto stats = dashboardService.getAdminStats();
+        return ResponseEntity.ok(ApiResponse.success(stats, "Admin stats retrieved successfully"));
     }
 
     @GetMapping("/student")
-    public ResponseEntity<StudentDashboardStatsDto> getStudentStats(Authentication authentication) {
+    public ResponseEntity<ApiResponse<StudentDashboardStatsDto>> getStudentStats(Authentication authentication) {
         String email = authentication.getName();
-        return ResponseEntity.ok(dashboardService.getStudentStats(email));
+        StudentDashboardStatsDto stats = dashboardService.getStudentStats(email);
+        return ResponseEntity.ok(ApiResponse.success(stats, "Student stats retrieved successfully"));
     }
 }

@@ -4,6 +4,7 @@ import com.readhub.bookmanagement.model.Transaction;
 import com.readhub.bookmanagement.repository.TransactionRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import java.util.List;
 
 @Component
@@ -18,6 +19,7 @@ public class OverdueScheduler {
     }
 
     @Scheduled(cron = "0 0 1 * * ?") // Runs daily at 1:00 AM
+    @SchedulerLock(name = "checkOverdueTransactions", lockAtMostFor = "10m", lockAtLeastFor = "1m")
     public void checkOverdueTransactions() {
         List<Transaction> overdueTransactions = transactionRepository.findOverdueTransactions();
         

@@ -1,16 +1,19 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { BookOpen, LogOut, Bell, CheckCircle2, XCircle, Clock, Info } from 'lucide-react';
+import { BookOpen, LogOut, Bell, CheckCircle2, XCircle, Clock, Info, Sun, Moon, X } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
 import '../../styles/dashboard.scss';
 
 const DashboardLayout = ({ children }) => {
   const { user, logout, token } = useAuth();
+  const { isDarkMode, toggleTheme } = useTheme();
   const navigate = useNavigate();
   
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false); // <- NEW
+  const [selectedNotification, setSelectedNotification] = useState(null);
 
   // --- CLOCK STATE ---
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -34,7 +37,7 @@ const DashboardLayout = ({ children }) => {
       });
       if (res.ok) {
         const data = await res.json();
-        setNotifications(data);
+        setNotifications(data.data || data);
       }
     } catch (err) { console.error(err); }
   };
@@ -131,6 +134,13 @@ const DashboardLayout = ({ children }) => {
 
             <div className="menu-divider"></div>
 
+            {/* THEME TOGGLE */}
+            <button onClick={toggleTheme} className="notification-btn" title="Toggle Theme" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+
+            <div className="menu-divider"></div>
+
             {/* NOTIFICATIONS */}
             <div className="notification-wrapper" ref={notificationRef}>
               <button className={`notification-btn ${showNotifications ? 'active' : ''}`} onClick={toggleNotifications}>
@@ -148,7 +158,15 @@ const DashboardLayout = ({ children }) => {
                       notifications.map(note => {
                         const style = getNotificationStyle(note.message);
                         return (
-                          <div key={note.notificationId} className={`notif-item ${style.type} ${!note.isRead ? 'unread-item' : ''}`}>
+                          <div 
+                            key={note.notificationId} 
+                            className={`notif-item ${style.type} ${!note.isRead ? 'unread-item' : ''}`}
+                            onClick={() => {
+                              setSelectedNotification(note);
+                              setNotifications(prev => prev.map(n => n.notificationId === note.notificationId ? { ...n, isRead: true } : n));
+                            }}
+                            style={{ cursor: 'pointer' }}
+                          >
                             <div className="notif-icon-box">{style.icon}</div>
                             <div className="notif-content">
                               <p className="notif-msg">{note.message}</p>
@@ -249,6 +267,48 @@ const DashboardLayout = ({ children }) => {
             <div className="confirm-actions">
               <button className="btn-yes-conf" onClick={confirmLogout}>Yes, Logout</button>
               <button className="btn-cancel-conf" onClick={cancelLogout}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- NOTIFICATION DETAILS MODAL --- */}
+      {selectedNotification && (
+        <div className="modal-overlay" onClick={() => setSelectedNotification(null)} style={{ zIndex: 9999 }}>
+          <div className="modal-container" onClick={(e) => e.stopPropagation()} style={{ width: '450px' }}>
+            <div className="modal-header">
+              <h2 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-main)' }}>Notification Details</h2>
+              <button onClick={() => setSelectedNotification(null)} className="btn-close"><X size={20} /></button>
+            </div>
+            <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--beige-bg)', color: 'var(--maroon)' }}>
+                  {getNotificationStyle(selectedNotification.message).icon}
+                </div>
+                <div>
+                  <p style={{ margin: 0, fontWeight: '600', color: 'var(--text-main)' }}>Activity Update</p>
+                  <span style={{ fontSize: '12px', color: 'var(--text-sub)' }}>
+                    {new Date(selectedNotification.sentDate).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+              <p style={{ 
+                fontSize: '14px', 
+                color: 'var(--text-main)', 
+                lineHeight: '1.6', 
+                background: 'var(--bg-page)', 
+                padding: '16px', 
+                borderRadius: '8px', 
+                border: '1px solid var(--border-light)', 
+                margin: 0 
+              }}>
+                {selectedNotification.message}
+              </p>
+            </div>
+            <div className="modal-footer" style={{ borderTop: '1px solid var(--border-light)', background: 'var(--bg-page)' }}>
+              <button onClick={() => setSelectedNotification(null)} className="btn-confirm" style={{ width: '100%' }}>
+                Close
+              </button>
             </div>
           </div>
         </div>

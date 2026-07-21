@@ -24,8 +24,8 @@ const UrgentActionModal = ({ onClose, overdueItems, dueSoonItems }) => {
               <AlertTriangle size={24} />
             </div>
             <div>
-              <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#111827', margin: 0 }}>Action Required</h2>
-              <p style={{ margin: 0, color: '#6B7280', fontSize: '14px' }}>You have items that need attention.</p>
+              <h2 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-main)', margin: 0 }}>Action Required</h2>
+              <p style={{ margin: 0, color: 'var(--text-sub)', fontSize: '14px' }}>You have items that need attention.</p>
             </div>
           </div>
           <button onClick={onClose} className="btn-close"><X size={20} /></button>
@@ -43,7 +43,7 @@ const UrgentActionModal = ({ onClose, overdueItems, dueSoonItems }) => {
                 {overdueItems.map(t => (
                   <div key={t.transactionId} style={{ background: '#FEF2F2', border: '1px solid #FECACA', padding: '12px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <div style={{ fontWeight: '600', color: '#991B1B' }}>{t.book.title}</div>
+                      <div style={{ fontWeight: '600', color: '#991B1B' }}>{t.bookTitle}</div>
                       <div style={{ fontSize: '12px', color: '#B91C1C' }}>Due: {t.dueDate}</div>
                     </div>
                     <span style={{ fontSize: '20px' }}>🚨</span>
@@ -63,11 +63,11 @@ const UrgentActionModal = ({ onClose, overdueItems, dueSoonItems }) => {
                 {dueSoonItems.map(t => (
                   <div key={t.transactionId} style={{ background: '#FFFBEB', border: '1px solid #FDE68A', padding: '12px', borderRadius: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <div style={{ fontWeight: '600', color: '#92400E' }}>{t.book.title}</div>
+                      <div style={{ fontWeight: '600', color: '#92400E' }}>{t.bookTitle}</div>
                       <div style={{ fontSize: '12px', color: '#B45309' }}>Due: {t.dueDate}</div>
                     </div>
                     <button 
-                      onClick={() => addToCalendar(t.book.title, t.dueDate)}
+                      onClick={() => addToCalendar(t.bookTitle, t.dueDate)}
                       title="Add to Google Calendar"
                       style={{ background: 'white', border: '1px solid #FCD34D', borderRadius: '6px', padding: '6px', cursor: 'pointer', color: '#D97706' }}
                     >
@@ -80,7 +80,7 @@ const UrgentActionModal = ({ onClose, overdueItems, dueSoonItems }) => {
           )}
         </div>
 
-        <div className="modal-footer" style={{ background: '#F9FAFB' }}>
+        <div className="modal-footer" style={{ background: 'var(--bg-page)', borderTop: '1px solid var(--border-light)' }}>
           <button onClick={onClose} className="btn-confirm" style={{ width: '100%' }}>
             I Understand
           </button>

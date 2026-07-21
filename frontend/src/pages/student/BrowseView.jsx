@@ -53,8 +53,8 @@ const BookDetailModal = ({ book, onClose, onRequest, isProcessing }) => {
               {getItemIcon(book.title)}
             </div>
             <div>
-              <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#111827', margin: '0 0 4px 0' }}>{book.title}</h2>
-              <p style={{ color: '#6B7280', margin: 0 }}>by {book.author}</p>
+              <h2 style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-main)', margin: '0 0 4px 0' }}>{book.title}</h2>
+              <p style={{ color: 'var(--text-sub)', margin: 0 }}>by {book.author}</p>
             </div>
           </div>
 
@@ -65,7 +65,7 @@ const BookDetailModal = ({ book, onClose, onRequest, isProcessing }) => {
             <span className="badge badge-outline-yellow">Excellent Condition</span>
           </div>
 
-          <p style={{ fontSize: '14px', color: '#6B7280', lineHeight: '1.6', marginBottom: '24px' }}>
+          <p style={{ fontSize: '14px', color: 'var(--text-sub)', lineHeight: '1.6', marginBottom: '24px' }}>
             Advanced resource suitable for higher education students. This item includes all standard features expected for the curriculum.
           </p>
 
@@ -115,7 +115,7 @@ const BrowseView = () => {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => res.json())
-    .then(data => setBooks(data))
+    .then(data => setBooks(data.data || data))
     .catch(err => console.error(err));
 
     // Fetch History (to check for duplicates)
@@ -123,7 +123,7 @@ const BrowseView = () => {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => res.json())
-    .then(data => setHistory(data))
+    .then(data => setHistory(data.data || data))
     .catch(err => console.error(err));
   }, [token, debouncedKeyword]);
 
@@ -146,7 +146,7 @@ const BrowseView = () => {
   const handleBorrow = async (bookId) => {
     // 1. Check for Duplicates in History
     const activeTxn = history.find(t => 
-      t.book.bookId === bookId && 
+      t.bookId === bookId && 
       (t.status === 'PENDING' || t.status === 'APPROVED' || t.status === 'BORROWED' || t.status === 'OVERDUE')
     );
 
@@ -167,7 +167,7 @@ const BrowseView = () => {
           }}>
             Current Status: <span style={{ color: getStatusColor(activeTxn.status), fontSize: '15px', marginLeft: '4px' }}>{activeTxn.status}</span>
           </div>
-          <span style={{ fontSize: '13px', color: '#6B7280' }}>Are you sure you want to request another copy?</span>
+          <span style={{ fontSize: '13px', color: 'var(--text-sub)' }}>Are you sure you want to request another copy?</span>
         </div>
       );
 
