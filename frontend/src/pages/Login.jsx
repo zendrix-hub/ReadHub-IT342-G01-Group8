@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, MoreHorizontal, Eye, EyeOff, Sun, Moon, AlertCircle, CheckCircle, X } from 'lucide-react';
+import { BookOpen, Eye, EyeOff, Sun, Moon, AlertCircle, CheckCircle, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { useToast } from '../context/ToastContext';

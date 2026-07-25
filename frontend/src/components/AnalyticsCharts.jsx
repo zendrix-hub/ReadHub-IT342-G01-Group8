@@ -9,7 +9,6 @@ export function BorrowingActivityChart({ data }) {
   }
 
   const entries = Object.entries(data);
-  const labels = entries.map(([k]) => k);
   const values = entries.map(([, v]) => v);
   const maxValue = Math.max(...values, 5); // default grid scale max to at least 5
 

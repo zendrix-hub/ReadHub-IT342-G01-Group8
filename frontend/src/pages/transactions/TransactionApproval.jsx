@@ -15,6 +15,7 @@ const TransactionApproval = () => {
     .then(data => setTransactions(data.data || data));
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchTransactions(); }, [token]);
 
   const updateStatus = async (id, status) => {
